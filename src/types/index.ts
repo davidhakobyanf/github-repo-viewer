@@ -74,4 +74,33 @@ export interface GitHubApiError {
     created_at: string;
     updated_at: string;
   }
+  export interface RepoItemProps {
+    repository: GitHubRepository;
+  }
+  export interface RepoFilters {
+    language: string | null;
+    sortBy: 'stars' | 'forks' | 'name' | 'updated';
+    sortOrder: 'asc' | 'desc';
+  }
+  export interface PaginationInfo {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  }
   
+  export interface RepoListProps {
+    repositories: GitHubRepository[];
+    loading: boolean;
+    error: string | null;
+    filters: RepoFilters;
+    onFiltersChange: (filters: RepoFilters) => void;
+    pagination: PaginationInfo;
+    onPageChange: (page: number) => void;
+  }
+  export interface PaginationInfo {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  }

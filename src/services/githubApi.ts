@@ -1,6 +1,7 @@
 import { GitHubUser, 
      GitHubApiError, 
-     GitHubOrganization} from '../types';
+     GitHubOrganization,
+     GitHubRepository} from '../types';
 
 class GitHubApiService {
   private baseUrl = 'https://api.github.com';
@@ -58,7 +59,26 @@ class GitHubApiService {
     return this.request<GitHubUser>(`/users/${encodeURIComponent(username)}`);
   }
 
+  async getUserRepositories(
+    username: string, 
+    page: number = 1, 
+    perPage: number = 20,
+    sort: 'created' | 'updated' | 'pushed' | 'full_name' = 'updated',
+    direction: 'asc' | 'desc' = 'desc'
+  ): Promise<GitHubRepository[]> {
+    if (!username.trim()) {
+      throw new Error('Username cannot be empty');
+    }
 
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: perPage.toString(),
+      sort,
+      direction
+    });
+
+    return this.request<GitHubRepository[]>(`/users/${encodeURIComponent(username)}/repos?${params}`);
+  }
   async getUserOrganizations(username: string): Promise<GitHubOrganization[]> {
     if (!username.trim()) {
       throw new Error('Username cannot be empty');

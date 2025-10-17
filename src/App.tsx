@@ -1,19 +1,70 @@
-import { useState } from 'react';
-import { useGitHubOrganizations, useGitHubUser } from './hooks/useGitHubData';
+import { useMemo, useState } from 'react';
+import { useGitHubOrganizations, useGitHubRepositories, useGitHubUser } from './hooks/useGitHubData';
 import { useTheme } from './hooks/useTheme.tsx';
 import SearchInput from './components/SearchInput';
 import UserProfile from './components/UserProfile';
 import OrganizationList from './components/OrganizationList.tsx';
+import RepoList from './components/RepoList.tsx';
+import { PaginationInfo, RepoFilters } from './types/index.ts';
 
 
+const REPOS_PER_PAGE = 15;
 
 function App() {
   const [username, setUsername] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [repoFilters, setRepoFilters] = useState<RepoFilters>({
+    language: null,
+    sortBy: 'stars',
+    sortOrder: 'desc'
+  });
   const { theme, toggleTheme } = useTheme();
+
   // Fetch data
   const { data: user, loading: userLoading, error: userError } = useGitHubUser(username);
   const { data: organizations, loading: orgsLoading, error: orgsError } = useGitHubOrganizations(username);
+  const { 
+    data: repositories, 
+    loading: reposLoading, 
+    error: reposError 
+  } = useGitHubRepositories(
+    username, 
+    currentPage, 
+    REPOS_PER_PAGE, 
+    repoFilters.sortBy === 'updated' ? 'updated' : 'created',
+    repoFilters.sortOrder
+  );
 
+
+    // Calculate pagination info
+    const pagination: PaginationInfo = useMemo(() => {
+      if (!user || !repositories) {
+        return {
+          currentPage: 1,
+          totalPages: 1,
+          totalItems: 0,
+          itemsPerPage: REPOS_PER_PAGE
+        };
+      }
+  
+      const totalPages = Math.ceil(user.public_repos / REPOS_PER_PAGE);
+      return {
+        currentPage,
+        totalPages,
+        totalItems: user.public_repos,
+        itemsPerPage: REPOS_PER_PAGE
+      };
+    }, [user, repositories, currentPage]);
+    const handlePageChange = (page: number) => {
+      setCurrentPage(page);
+      // Scroll to top when page changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  
+  const handleFiltersChange = (newFilters: RepoFilters) => {
+    setRepoFilters(newFilters);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
   const handleSearch = (searchUsername: string) => {
     setUsername(searchUsername);
   };
@@ -81,7 +132,18 @@ function App() {
                 />
               </div>
 
-          
+               {/* Repositories */}
+               <div className="lg:col-span-2">
+                <RepoList
+                  repositories={repositories || []}
+                  loading={reposLoading}
+                  error={reposError}
+                  filters={repoFilters}
+                  onFiltersChange={handleFiltersChange}
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             </div>
           )}
 

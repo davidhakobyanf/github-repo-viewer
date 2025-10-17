@@ -1,5 +1,42 @@
-import { GitHubRepository } from '../types';
+import { GitHubRepository, RepoFilters } from '../types';
 
+export const filterRepositories = (
+    repositories: GitHubRepository[],
+    filters: RepoFilters
+  ): GitHubRepository[] => {
+    let filtered = [...repositories];
+  
+    // Filter by language
+    if (filters.language && filters.language !== 'all') {
+      filtered = filtered.filter(repo => repo.language === filters.language);
+    }
+  
+    // Sort repositories
+    filtered.sort((a, b) => {
+      let comparison = 0;
+  
+      switch (filters.sortBy) {
+        case 'stars':
+          comparison = a.stargazers_count - b.stargazers_count;
+          break;
+        case 'forks':
+          comparison = a.forks_count - b.forks_count;
+          break;
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'updated':
+          comparison = new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
+          break;
+        default:
+          comparison = 0;
+      }
+  
+      return filters.sortOrder === 'desc' ? -comparison : comparison;
+    });
+  
+    return filtered;
+  };
 export const getUniqueLanguages = (repositories: GitHubRepository[]): string[] => {
   const languages = repositories
     .map(repo => repo.language)

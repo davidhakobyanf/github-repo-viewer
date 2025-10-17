@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useGitHubUser } from './hooks/useGitHubData';
+import { useGitHubOrganizations, useGitHubUser } from './hooks/useGitHubData';
 import { useTheme } from './hooks/useTheme.tsx';
 import SearchInput from './components/SearchInput';
 import UserProfile from './components/UserProfile';
+import OrganizationList from './components/OrganizationList.tsx';
 
 
 
@@ -11,6 +12,8 @@ function App() {
   const { theme, toggleTheme } = useTheme();
   // Fetch data
   const { data: user, loading: userLoading, error: userError } = useGitHubUser(username);
+  const { data: organizations, loading: orgsLoading, error: orgsError } = useGitHubOrganizations(username);
+
   const handleSearch = (searchUsername: string) => {
     setUsername(searchUsername);
   };
@@ -66,7 +69,21 @@ function App() {
             error={userError}
           />
 
-  
+   {/* Organizations and Repositories */}
+   {user && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Organizations */}
+              <div className="lg:col-span-1">
+                <OrganizationList
+                  organizations={organizations || []}
+                  loading={orgsLoading}
+                  error={orgsError}
+                />
+              </div>
+
+          
+            </div>
+          )}
 
           {/* Footer */}
           <footer className="text-center py-8 border-t border-gray-200 dark:border-gray-700">

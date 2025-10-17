@@ -49,3 +49,29 @@ export interface GitHubApiError {
     error: string | null;
     loading: boolean;
   }
+  export interface OrganizationListProps {
+    organizations: GitHubOrganization[];
+    loading: boolean;
+    error: string | null;
+  }
+  export interface GitHubOrganization {
+    id: number;
+    login: string;
+    avatar_url: string;
+    html_url: string;
+    description: string | null;
+    name: string | null;
+    url: string;
+    company: string | null;
+    blog: string | null;
+    location: string | null;
+    email: string | null;
+    twitter_username: string | null;
+    public_repos: number;
+    public_gists: number;
+    followers: number;
+    following: number;
+    created_at: string;
+    updated_at: string;
+  }
+  

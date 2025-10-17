@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { githubApi } from '../services/githubApi';
-import { GitHubUser,  ApiResponse } from '../types';
+import { GitHubUser,  ApiResponse, GitHubOrganization } from '../types';
 
 export const useGitHubUser = (username: string | null) => {
   const [user, setUser] = useState<ApiResponse<GitHubUser>>({
@@ -35,3 +35,39 @@ export const useGitHubUser = (username: string | null) => {
   return { ...user, refetch: () => username && fetchUser(username) };
 };
 
+export const useGitHubOrganizations = (username: string | null) => {
+    const [organizations, setOrganizations] = useState<ApiResponse<GitHubOrganization[]>>({
+      data: null,
+      error: null,
+      loading: false
+    });
+  
+    const fetchOrganizations = useCallback(async (usernameToFetch: string) => {
+      setOrganizations(prev => ({ ...prev, loading: true, error: null }));
+      
+      try {
+        const orgsData = await githubApi.getUserOrganizations(usernameToFetch);
+        setOrganizations({ data: orgsData, error: null, loading: false });
+      } catch (error) {
+        setOrganizations({ 
+          data: null, 
+          error: error instanceof Error ? error.message : 'Failed to fetch organizations', 
+          loading: false 
+        });
+      }
+    }, []);
+  
+    useEffect(() => {
+      if (username && username.trim()) {
+        fetchOrganizations(username);
+      } else {
+        setOrganizations({ data: null, error: null, loading: false });
+      }
+    }, [username, fetchOrganizations]);
+  
+    return { 
+      ...organizations, 
+      refetch: () => username && fetchOrganizations(username) 
+    };
+  };
+  

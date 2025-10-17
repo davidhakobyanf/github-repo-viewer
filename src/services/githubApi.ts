@@ -1,5 +1,6 @@
 import { GitHubUser, 
-     GitHubApiError } from '../types';
+     GitHubApiError, 
+     GitHubOrganization} from '../types';
 
 class GitHubApiService {
   private baseUrl = 'https://api.github.com';
@@ -58,7 +59,13 @@ class GitHubApiService {
   }
 
 
+  async getUserOrganizations(username: string): Promise<GitHubOrganization[]> {
+    if (!username.trim()) {
+      throw new Error('Username cannot be empty');
+    }
 
+    return this.request<GitHubOrganization[]>(`/users/${encodeURIComponent(username)}/orgs`);
+  }
 
   // Utility method to clear cache
   clearCache(): void {

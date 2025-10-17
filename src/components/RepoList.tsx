@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { RepoListProps } from '../types';
 import { filterRepositories, getUniqueLanguages, getTopRepositories } from '../utils/repoUtils';
 import RepoItem from './RepoItem';
+import Pagination from './Pagination';
 
 const RepoList: React.FC<RepoListProps> = ({
   repositories,
@@ -9,6 +10,8 @@ const RepoList: React.FC<RepoListProps> = ({
   error,
   filters,
   onFiltersChange,
+  pagination,
+  onPageChange
 }) => {
   const [showFilters, setShowFilters] = useState(false);
 
@@ -237,7 +240,13 @@ const RepoList: React.FC<RepoListProps> = ({
             </div>
           </div>
         )}
-
+        {/* Pagination */}
+        <div className="mt-6">
+          <Pagination
+            pagination={pagination}
+            onPageChange={onPageChange}
+          />
+        </div>
 
       </div>
     </div>
